@@ -34,4 +34,3 @@ int clk_enable(struct clk *);
 int clk_disable(struct clk *);
 
 #endif /* _CLK_H_ */
-

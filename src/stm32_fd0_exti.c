@@ -1,9 +1,14 @@
 #include <stm32_fd0_exti.h>
 #include <io.h>
-#include <nvic.h>
-#include <irq_handler.h>
 
-#define MAX_MASK_BIT_NUM		28
+#define MAX_MASK_BIT_NUM	28
+#define CFG_PER_REG		4
+#define CFG_WIDTH		4
+
+static inline uint8_t __get_cfg_offset(int cfg_num)
+{
+	return (cfg_num % CFG_PER_REG) << 2;
+}
 
 static int __set_mask(uint32_t reg, uint32_t bit_mask, unsigned flag)
 {
@@ -11,28 +16,12 @@ static int __set_mask(uint32_t reg, uint32_t bit_mask, unsigned flag)
 
 	for (bit_num = 0; bit_num < MAX_MASK_BIT_NUM; bit_num++) {
 		if (bit_mask & (1UL << bit_num)) {
-				(flag)
-					? set_bit(reg + EXTI_BASE_ADDR, bit_num)
-					: reset_bit(reg + EXTI_BASE_ADDR, bit_num);
+			(flag)
+				? set_bit(reg + EXTI_BASE_ADDR, bit_num)
+				: reset_bit(reg + EXTI_BASE_ADDR, bit_num);
 		}
 	}
 	return 0;
-}
-
-/**
- * EXTI_0_1 interrupt handler
- */
-void exti_0_1_irq_handler(void)
-{
-	irq_generic_handler(EXTI0_1);
-}
-
-/**
- * EXTI_2_3 interrupt handler
- */
-void exti_2_3_irq_handler(void)
-{
-	irq_generic_handler(EXTI2_3);
 }
 
 /**
@@ -54,7 +43,7 @@ int stm32_exti_reset_irq_mask(uint32_t bit_mask)
 }
 
 /**
- *Event mask register
+ * Event mask register
  */
 int stm32_exti_set_event_mask(uint32_t bit_mask)
 {
@@ -138,3 +127,11 @@ int stm32_exti_reset_pending(uint32_t bit_num)
 	return set_bit(EXTI_PR + EXTI_BASE_ADDR, bit_num);
 }
 
+/**
+ * EXTI configuration
+ */
+int stm32_exti_cfg_mode(uint32_t reg, int cfg_num, int val)
+{
+	uint8_t offset = __get_cfg_offset(cfg_num);
+	return set_value(SYSCFG_BASE_ADDR + reg, val, offset, CFG_WIDTH);
+}

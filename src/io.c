@@ -7,7 +7,17 @@ uint32_t __raw_readl(uint32_t addr)
 	return *(volatile uint32_t *)addr;
 }
 
+uint8_t __raw_readb(uint32_t addr)
+{
+	return *(volatile uint8_t *)addr;
+}
+
 void __raw_writel(uint32_t addr, uint32_t val)
+{
+	*(uint32_t *)addr = val;
+}
+
+void __raw_writeb(uint32_t addr, uint8_t val)
 {
 	*(uint32_t *)addr = val;
 }
@@ -84,4 +94,3 @@ int get_value(uint32_t addr, uint8_t pos, int width)
 	mask = (1 << width) - 1;
 	return (regval >> pos) & mask;
 }
-

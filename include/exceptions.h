@@ -40,4 +40,3 @@ int set_exception(int nr, int (*handler)(void *), void *arg, int flags);
 struct exception * get_exception(int nr);
 
 #endif /* _EXCEPTIONS_H_ */
-

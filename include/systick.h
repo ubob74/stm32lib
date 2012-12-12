@@ -35,4 +35,3 @@ void systick_set_cvr(uint32_t);
 int systick_init(void);
 
 #endif /* _SYSTICK_H_ */
-

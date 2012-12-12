@@ -31,6 +31,18 @@ static struct clk stm32_fd0_clk[] = {
 		.enable_reg = RCC_APB2ENR,
 		.enable_bit = 0,
 	},
+	[4] = {
+		.name = "usart1",
+		.ref_count = 0,
+		.enable_reg = RCC_APB2ENR,
+		.enable_bit = 14,
+	},
+	[5] = {
+		.name = "usart2",
+		.ref_count = 0,
+		.enable_reg = RCC_APB1ENR,
+		.enable_bit = 17,
+	},
 };
 
 static struct clk_array stm32_fd0_clk_array = {
@@ -105,4 +117,3 @@ int stm32_fd0_clk_init()
 {
 	return clk_init(&stm32_fd0_clk_ops);
 }
-

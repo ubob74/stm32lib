@@ -37,15 +37,6 @@
 #define NVIC_ICPR		0x180
 #define NVIC_IPR		0x200
 
-/* TODO: Interrupt vectors */
-#define PVD				1
-#define RTC				2
-#define FLASH			3
-#define RCC				4
-#define EXTI0_1		5
-#define EXTI2_3		6
-#define EXTI4_15	7
-
 uint32_t nvic_get_cpuid(void);
 
 int nvic_irq_set_enable(uint8_t irq_num);
@@ -60,4 +51,3 @@ int nvic_irq_set_priority(uint8_t irq);
 int nvic_irq_get_priority(uint8_t irq);
 
 #endif /* _NVIC_H_ */
-

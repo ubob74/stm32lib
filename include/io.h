@@ -10,7 +10,9 @@
 #define BIT(x) (1UL << x)
 
 uint32_t __raw_readl(uint32_t addr);
+uint8_t __raw_readb(uint32_t addr);
 void __raw_writel(uint32_t addr, uint32_t val);
+void __raw_writeb(uint32_t addr, uint8_t val);
 
 int set_bit(uint32_t addr, uint8_t pos);
 int reset_bit(uint32_t addr, uint8_t pos);
