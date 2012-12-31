@@ -1,28 +1,28 @@
 #include <irq.h>
 #include <io.h>
 
-static struct irq_table *table = NULL;
+static struct irq_table *irq_table = NULL;
 
 static struct irq * irq_get_entry(int nr)
 {
-	if (!table)
+	if (!irq_table)
 		return NULL;
 
-	if (nr >= table->nr_irq)
+	if (nr >= irq_table->nr_irq)
 		return NULL;
 
-	return table->irq + nr;
+	return irq_table->irq + nr;
 }
 
-int irq_table_init(struct irq_table *irq_table)
+int irq_table_init(struct irq_table *arch_irq_table)
 {
-	if (!irq_table)
+	if (!arch_irq_table)
 		return -1;
 
-	if (table)
+	if (irq_table)
 		return -1;
 
-	table = irq_table;
+	irq_table = arch_irq_table;
 	return 0;
 }
 
@@ -30,13 +30,13 @@ int irq_request(int nr, int (*handler)(void *), void *arg, int flags)
 {
 	struct irq *irq = NULL;
 
-	if (!table)
+	if (!irq_table)
 		return -1;
 
-	if (nr >= table->nr_irq)
+	if (nr >= irq_table->nr_irq)
 		return -1;
 
-	irq = table->irq + nr;
+	irq = irq_table->irq + nr;
 	irq->handler = handler;
 	irq->arg = arg;
 	irq->flags = flags;
@@ -46,14 +46,14 @@ int irq_request(int nr, int (*handler)(void *), void *arg, int flags)
 
 void irq_enable(int nr)
 {
-	if (table->irq_enable)
-		table->irq_enable(nr);
+	if (irq_table->irq_enable)
+		irq_table->irq_enable(nr);
 }
 
 void irq_disable(int nr)
 {
-	if (table->irq_disable)
-		table->irq_disable(nr);
+	if (irq_table->irq_disable)
+		irq_table->irq_disable(nr);
 }
 
 void irq_generic_handler(int nr)

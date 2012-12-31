@@ -12,6 +12,16 @@ int gpio_init(struct gpio_ops *arch_gpio_ops)
 	return 0;
 }
 
+int gpio_request(uint32_t id, uint8_t pin_num)
+{
+	return (gpio_ops && gpio_ops->request) ? gpio_ops->request(id, pin_num) : -1;
+}
+
+int gpio_free(uint32_t id, uint8_t pin_num)
+{
+	return (gpio_ops && gpio_ops->free) ? gpio_ops->free(id, pin_num) : -1;
+}
+
 int gpio_set_mode(uint32_t id, uint8_t pin_num, int mode)
 {
 	return (gpio_ops && gpio_ops->set_mode) ? gpio_ops->set_mode(id, pin_num, mode) : -1;
@@ -65,4 +75,9 @@ int gpio_get_pin_value(uint32_t id, uint8_t pin_num)
 int gpio_mux(uint32_t id, uint8_t pin_num, int mode)
 {
 	return (gpio_ops && gpio_ops->mux) ? gpio_ops->mux(id, pin_num, mode) : -1;
+}
+
+int gpio_to_irq(uint32_t id, uint8_t pin_num, int irq_num)
+{
+	return (gpio_ops && gpio_ops->gpio_to_irq) ? gpio_ops->gpio_to_irq(id, pin_num, irq_num) : -1;
 }

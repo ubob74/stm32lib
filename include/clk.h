@@ -1,7 +1,7 @@
 #ifndef _CLK_H_
 #define _CLK_H_
 
-#include <stdint.h>
+#include <_stdint.h>
 
 struct stm32_clk;
 struct stm32_clk_ops;

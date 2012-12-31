@@ -1,11 +1,34 @@
 #ifndef _USART_H_
 #define _USART_H_
 
-#include <stdint.h>
+#include <_stdint.h>
+#include <atomic.h>
+#include <clk.h>
+
+struct usart_ops;
+struct usart_data;
+
+struct usart_gpio {
+	int id;
+	uint8_t pin_num;
+	int mode;
+};
+
+struct usart_resources {
+	struct usart_gpio *usart_gpio;
+	int nr_resources;
+};
 
 struct usart {
 	int id;
 	uint32_t base_addr;
+	int irq;
+	int (*irq_handler)(void *);
+	const char *clk_name;
+	struct clk *clk;
+	struct usart_resources resources;
+	struct usart_data *usart_data;
+	atomic_t ref_count;
 };
 
 struct usart_array {
@@ -13,8 +36,8 @@ struct usart_array {
 	int nr_usart;
 };
 
-/**
- * The data to be written to USART
+/*
+ * The USART data
  */
 struct usart_data {
 	uint8_t *data;
@@ -23,19 +46,19 @@ struct usart_data {
 	int complete;
 };
 
-/**
+/*
  * USART operations
  */
 struct usart_ops {
+	struct usart *usart; /* back reference */
 	int (*usart_enable)(int id);
 	int (*usart_disable)(int id);
 	int (*set_word_length)(int id, uint8_t word_length);
 	int (*set_baud_rate)(int id, uint32_t baud_rate);
 	int (*set_stop_bit)(int id, uint8_t stop_bit);
-	int (*transmitter_enable)(int id);
-	int (*transmitter_disable)(int id);
-	int (*receiver_enable)(int id);
-	int (*receiver_disable)(int id);
+	int (*set_parity)(int id);
+	int (*start_tx)(int id, struct usart_data *usart_data);
+	int (*start_rx)(int id, struct usart_data *usart_data);
 };
 
 int usart_init(struct usart_ops *);
@@ -44,11 +67,8 @@ int usart_disable(int id);
 int usart_set_word_length(int id, uint8_t word_length);
 int usart_set_baud_rate(int id, uint32_t baud_rate);
 int usart_set_stop_bit(int id, uint8_t stop_bit);
-int usart_transmitter_enable(int id);
-int usart_transmitter_disable(int id);
-int usart_receiver_enable(int id);
-int usart_receiver_disable(int id);
-
-int usart_start_transmission(int id, struct usart_data *usart_data);
+int usart_set_parity(int id);
+int usart_start_tx(int id, struct usart_data *usart_data);
+int usart_start_rx(int id, struct usart_data *usart_data);
 
 #endif /* _USART_H_ */
