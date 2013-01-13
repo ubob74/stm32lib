@@ -47,3 +47,4 @@ int nvic_irq_get_priority(uint8_t irq_num)
 	/* TODO */
 	return 0;
 }
+

@@ -63,3 +63,4 @@ int usart_start_rx(int id, struct usart_data *usart_data)
 	return (usart_ops && usart_ops->start_rx)
 		? usart_ops->start_rx(id, usart_data) : -1;
 }
+

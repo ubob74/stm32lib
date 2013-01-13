@@ -14,6 +14,7 @@
 #define LED_GREEN	9
 #define LED_BLUE	8
 
+#if 0
 static int _test_rcc(void)
 {
 	/* Set MCO */
@@ -29,6 +30,7 @@ static int _test_rcc(void)
 
 	return 0;
 }
+#endif
 
 int main(void)
 {
@@ -40,21 +42,19 @@ int main(void)
 	if (stm32_test_gpio() < 0)
 		goto out;
 
-	_test_rcc();
+	if (stm32_test_systick() < 0)
+		goto out;
 
 	if (stm32_test_exti() < 0)
 		goto out;
 
-	if (stm32_test_systick() < 0)
-		goto out;
-
-/*
 	if (stm32_test_usart(USART_2) < 0)
 		goto out;
-*/
+
 	if (stm32_test_stdlib() < 0)
 		goto out;
 
 out:
 	while (1);
 }
+

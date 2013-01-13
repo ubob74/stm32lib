@@ -50,3 +50,4 @@ int set_exception(int nr, int (*handler)(void *), void *arg, int flags)
 	exception->arg = arg;
 	return 0;
 }
+

@@ -2,8 +2,6 @@
 #include <io.h>
 
 #define MAX_MASK_BIT_NUM	28
-/*#define CFG_PER_REG		4
-#define CFG_WIDTH		4*/
 
 static int __set_mask(uint32_t reg, uint32_t bit_mask, unsigned flag)
 {

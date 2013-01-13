@@ -1,6 +1,4 @@
 #include <_stdlib.h>
-/*#include <string.h>*/
-
 #include <stm32_fd0_clk.h>
 #include <clk.h>
 #include <io.h>
@@ -63,7 +61,7 @@ static struct clk * stm32_fd0_clk_get(const char *name)
 		if (!strcmp(clk->name, name)) {
 			if (stm32_fd0_clk_enable(clk) < 0)
 				return NULL;
-	
+
 			/* TODO: it should be atomic operation */
 			clk->ref_count++;
 			return clk;

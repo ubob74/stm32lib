@@ -59,3 +59,4 @@ int stm32_test_systick(void)
 
 	return 0;
 }
+

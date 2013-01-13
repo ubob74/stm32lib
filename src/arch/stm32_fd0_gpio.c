@@ -227,7 +227,7 @@ static int stm32_fd0_gpio_to_irq(uint32_t id, uint8_t pin_num, int exti_num)
 
 	bit_mask |= BIT(exti_num);
 	stm32_exti_set_irq_mask(bit_mask);
-	stm32_exti_set_rising_trigger(bit_mask);
+	stm32_exti_set_falling_trigger(bit_mask);
 
 	return set_value(reg, mode, offset, CFG_WIDTH);
 }
@@ -257,3 +257,4 @@ int stm32_fd0_gpio_init()
 
 	return gpio_init(&stm32_fd0_gpio_ops);
 }
+

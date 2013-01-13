@@ -25,3 +25,4 @@ int systick_set_exception_handler(int (*handler)(void *), void *arg, int flags)
 {
 	return set_exception(SYSTICK_EXCEPTION, handler, arg, flags);
 }
+

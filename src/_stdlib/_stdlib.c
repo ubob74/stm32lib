@@ -33,12 +33,16 @@ int strcmp(const char *src, const char *dst)
 		return -1;
 
 	len = strlen(src);
-	if (strlen(dst) != len)
-		return -1;
+	/*if (strlen(dst) != len)
+		return -1;*/
 
 	for (i = 0; i < len; i++)
 		if (src[i] != dst[i])
 			return -1;
 
+    if (dst[i] != 0x00)
+        return -1;
+
 	return 0;
 }
+

@@ -6,6 +6,8 @@
 #include <usart.h>
 #include <clk.h>
 #include <stm32_fd0_gpio.h>
+#include <stm32_fd0_exti.h>
+#include <stm32_fd0_irq.h>
 #include <stm32_fd0_clk.h>
 #include <stm32_fd0_usart.h>
 #include <stm32_test.h>
@@ -14,7 +16,7 @@ int stm32_test_usart(int id)
 {
 	int ret = -1;
 	struct usart_data usart_data;
-	uint8_t data[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N'};
+	uint8_t data[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
 
 	usart_data.data = &data[0];
 	usart_data.size = sizeof(data);
@@ -36,3 +38,4 @@ int stm32_test_usart(int id)
 	ret = 0;
 	return ret;
 }
+

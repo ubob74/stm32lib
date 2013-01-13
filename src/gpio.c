@@ -81,3 +81,4 @@ int gpio_to_irq(uint32_t id, uint8_t pin_num, int irq_num)
 {
 	return (gpio_ops && gpio_ops->gpio_to_irq) ? gpio_ops->gpio_to_irq(id, pin_num, irq_num) : -1;
 }
+

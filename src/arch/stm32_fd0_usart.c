@@ -52,7 +52,7 @@ struct usart_array stm32_fd0_usart_array = {
 	.nr_usart = sizeof(stm32_fd0_usart)/sizeof(stm32_fd0_usart[0]),
 };
 
-static int __transmitter_enable(uint32_t base_addr)
+static int __tx_enable(uint32_t base_addr)
 {
 	uint32_t cr1_val;
 
@@ -65,7 +65,7 @@ static int __transmitter_enable(uint32_t base_addr)
 	return 0;
 }
 
-static int __transmitter_disable(uint32_t base_addr)
+static int __tx_disable(uint32_t base_addr)
 {
 	return reset_bit(base_addr + USART_CR1, TE);
 }
@@ -197,7 +197,7 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 	if (isr & BIT(TXE)) {
 		if (usart_data->cur_pos < usart_data->size) {
 			val = usart_data->data[usart_data->cur_pos];
-			__raw_writeb(usart->base_addr + USART_TDR, val);
+			__raw_writeb(usart->base_addr + USART_TDR, (val & 0x7F));
 			usart_data->cur_pos++;
 			return 0;
 		}
@@ -232,13 +232,13 @@ int stm32_fd0_usart_start_tx(int id, struct usart_data *usart_data)
 	irq_enable(usart->irq);
 
 	/* enable USART2 transmitter */
-	__transmitter_enable(usart->base_addr);
+	__tx_enable(usart->base_addr);
 
 	/* wait for completion */
 	for(;usart_data->complete != 1;);
 
 	/* disable transmitter and USART2 */
-	__transmitter_disable(usart->base_addr);
+	__tx_disable(usart->base_addr);
 
 	irq_disable(usart->irq);
 
@@ -304,3 +304,4 @@ int stm32_fd0_usart_init(int id)
 
 	return 0;
 }
+

@@ -94,3 +94,4 @@ int get_value(uint32_t addr, uint8_t pos, int width)
 	mask = (1 << width) - 1;
 	return (regval >> pos) & mask;
 }
+

@@ -31,3 +31,4 @@ int clk_disable(struct clk *clk)
 {
 	return (clk_ops && clk_ops->disable) ? clk_ops->disable(clk) : 0;
 }
+
