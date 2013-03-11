@@ -39,13 +39,11 @@
 
 uint32_t nvic_get_cpuid(void);
 
-int nvic_irq_set_enable(uint8_t irq_num);
-int nvic_irq_get_enable(uint8_t irq_num);
-int nvic_irq_clear_enable(uint8_t irq_num);
+void nvic_irq_set_enable(uint8_t irq_num);
+void nvic_irq_clear_enable(uint8_t irq_num);
 
-int nvic_irq_set_pending(uint8_t irq_num);
-int nvic_irq_get_pending(uint8_t irq_num);
-int nvic_irq_clear_pending(uint8_t irq_num);
+void nvic_irq_set_pending(uint8_t irq_num);
+void nvic_irq_clear_pending(uint8_t irq_num);
 
 int nvic_irq_set_priority(uint8_t irq);
 int nvic_irq_get_priority(uint8_t irq);

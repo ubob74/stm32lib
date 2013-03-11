@@ -56,19 +56,19 @@ int stm32_test_exti(void)
 	gpio_set_mode(GPIO_C, 8, GPIO_MODE_OUTPUT);
 	gpio_set_type(GPIO_C, 8, GPIO_OTYPE_PP);
 	gpio_set_speed(GPIO_C, 8, GPIO_OSPEED_HIGH);
-	gpio_set_pupd(GPIO_C, 8, GPIO_PUPD_DOWN);
+	gpio_set_pupd(GPIO_C, 8, GPIO_PUPD_NOPULL);
 
 	/* Config GPIO_B for PB10 */
 	/*gpio_set_mode(GPIO_B, 10, GPIO_MODE_INPUT);
 	gpio_set_pupd(GPIO_B, 10, GPIO_PUPD_DOWN);
 
 	gpio_to_irq(GPIO_B, 10, EXTI10);*/
-    gpio_to_irq(GPIO_A, 0, EXTI0);
+	gpio_to_irq(GPIO_A, 0, EXTI0);
 
 	/* Request IRQ */
-	/*irq_request(EXTI4_15, blue_led_handler, NULL, 0);*/
+	/*irq_request(EXTI4_15, blue_led_handler, NULL, 0);
+	irq_enable(EXTI4_15);*/
 	irq_request(EXTI0_1, blue_led_handler, NULL, 0);
-	/*irq_enable(EXTI4_15);*/
 	irq_enable(EXTI0_1);
 
 	ret = 0;
@@ -81,4 +81,3 @@ gpio_c_clk_err:
 
 	return ret;
 }
-

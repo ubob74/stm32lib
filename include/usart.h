@@ -12,11 +12,12 @@ struct usart_gpio {
 	int id;
 	uint8_t pin_num;
 	int mode;
+	const char *clk_name;
 };
 
 struct usart_resources {
-	struct usart_gpio *usart_gpio;
-	int nr_resources;
+	struct usart_gpio *gpio;
+	int nr_gpio;
 };
 
 struct usart {
@@ -26,7 +27,7 @@ struct usart {
 	int (*irq_handler)(void *);
 	const char *clk_name;
 	struct clk *clk;
-	struct usart_resources resources;
+	struct usart_resources usart_resources;
 	struct usart_data *usart_data;
 	atomic_t ref_count;
 };

@@ -20,7 +20,7 @@ static void exception_generic_handler(int exc_num)
 		}
 	}
 
-	while(1);
+	for (;;);
 }
 
 #define EXCEPTION(name, index) \
@@ -50,4 +50,3 @@ int set_exception(int nr, int (*handler)(void *), void *arg, int flags)
 	exception->arg = arg;
 	return 0;
 }
-

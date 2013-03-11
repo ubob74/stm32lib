@@ -6,6 +6,7 @@
 #include <systick.h>
 #include <exceptions.h>
 #include <stm32_fd0_gpio.h>
+#include <stm32_fd0_rcc.h>
 #include <stm32_test.h>
 
 #define LED_GREEN	9
@@ -29,13 +30,24 @@ static int green_led_handler(void *arg)
 
 int stm32_test_systick(void)
 {
-	uint32_t freq = 8000000; /* 8 MHz */
+	struct clk *hclk;
+	struct clk *clk;
+	uint32_t freq = 0;
 	uint32_t csr_val = 0;
 	uint32_t rvr_val = 0;
 	uint32_t cvr_val = 0;
-	struct clk *clk;
 
-	/* Use processor clock 8 MHz */
+	hclk = clk_get("hclk");
+	if (!hclk)
+		return -1;
+
+	freq = clk_get_rate(hclk);
+	if (!freq) {
+		clk_put(hclk);
+		return -1;
+	}
+
+	/* Use processor clock */
 	csr_val = BIT(CSR_ENABLE) | BIT(CSR_TICKINT) | BIT(CSR_CLKSRC);
 	rvr_val = freq;
 
@@ -53,10 +65,10 @@ int stm32_test_systick(void)
 	gpio_set_speed(GPIO_C, 9, GPIO_OSPEED_HIGH);
 	gpio_set_pupd(GPIO_C, 9, GPIO_PUPD_NOPULL);
 
+	clk_put(hclk);
 	clk_put(clk);
 
 	set_exception(SYSTICK_EXCEPTION, green_led_handler, NULL, 0);
 
 	return 0;
 }
-

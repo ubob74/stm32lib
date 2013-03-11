@@ -5,15 +5,15 @@
 
 #define EXCEPTIONS_NUM 15
 
-#define NMI_EXCEPTION           0
-#define HARD_FAULT_EXCEPTION    1
-#define MEM_MANAGE_EXCEPTION	2
+#define NMI_EXCEPTION			0
+#define HARD_FAULT_EXCEPTION		1
+#define MEM_MANAGE_EXCEPTION		2
 #define BUS_FAULT_EXCEPTION		3
-#define USAGE_FAULT_EXCEPTION   4
-#define SVC_EXCEPTION           5
-#define DEBUG_MON_EXCEPTION     6
-#define PEND_SV_EXCEPTION       7
-#define SYSTICK_EXCEPTION       8
+#define USAGE_FAULT_EXCEPTION		4
+#define SVC_EXCEPTION			5
+#define DEBUG_MON_EXCEPTION		6
+#define PEND_SV_EXCEPTION		7
+#define SYSTICK_EXCEPTION		8
 
 struct exception {
 	int (*handler)(void *);

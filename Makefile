@@ -1,6 +1,7 @@
 SRCS = main.c io.c atomic.c clk.c gpio.c irq.c main.c usart.c _stdlib.c \
 	   stm32_fd0_clk.c stm32_fd0_exti.c stm32_fd0_gpio.c stm32_fd0_irq.c \
-	   stm32_fd0_usart.c exceptions.c nvic.c systick.c
+	   stm32_fd0_usart.c stm32_fd0_rcc.c \
+	   exceptions.c nvic.c systick.c
 
 SRCS_TEST = stm32_test_exti.c stm32_test_gpio.c stm32_test_stdlib.c \
 			stm32_test_systick.c stm32_test_usart.c

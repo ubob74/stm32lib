@@ -13,6 +13,7 @@ static struct usart_gpio usart1_gpio[] = {
 		.id = GPIO_A,
 		.pin_num = 9,
 		.mode = USART1_TX,
+		.clk_name = "gpio_a",
 	},
 };
 
@@ -21,6 +22,7 @@ static struct usart_gpio usart2_gpio[] = {
 		.id = GPIO_A,
 		.pin_num = 2,
 		.mode = USART2_TX,
+		.clk_name = "gpio_a",
 	},
 };
 
@@ -30,9 +32,9 @@ static struct usart stm32_fd0_usart[] = {
 		.base_addr = USART1_BASE_ADDR,
 		.irq = USART1,
 		.clk_name = "usart1",
-		.resources = {
-			.usart_gpio = usart1_gpio,
-			.nr_resources = 1,
+		.usart_resources = {
+			.gpio = usart1_gpio,
+			.nr_gpio = sizeof(usart1_gpio)/sizeof(usart1_gpio[0]),
 		},
 	},
 	[1] = {
@@ -40,9 +42,9 @@ static struct usart stm32_fd0_usart[] = {
 		.base_addr = USART2_BASE_ADDR,
 		.irq = USART2,
 		.clk_name = "usart2",
-		.resources = {
-			.usart_gpio = usart2_gpio,
-			.nr_resources = 1,
+		.usart_resources = {
+			.gpio = usart2_gpio,
+			.nr_gpio = sizeof(usart2_gpio)/sizeof(usart2_gpio[0]),
 		},
 	},
 };
@@ -52,7 +54,7 @@ struct usart_array stm32_fd0_usart_array = {
 	.nr_usart = sizeof(stm32_fd0_usart)/sizeof(stm32_fd0_usart[0]),
 };
 
-static int __tx_enable(uint32_t base_addr)
+static int __enable_tx(uint32_t base_addr)
 {
 	uint32_t cr1_val;
 
@@ -65,18 +67,18 @@ static int __tx_enable(uint32_t base_addr)
 	return 0;
 }
 
-static int __tx_disable(uint32_t base_addr)
+static int __disable_tx(uint32_t base_addr)
 {
 	return reset_bit(base_addr + USART_CR1, TE);
 }
 
-static int __receiver_enable(uint32_t base_addr)
+static int __enable_rx(uint32_t base_addr)
 {
 	/* TODO */
 	return 0;
 }
 
-static int __receiver_disable(uint32_t base_addr)
+static int __disable_rx(uint32_t base_addr)
 {
 	/* TODO */
 	return 0;
@@ -108,19 +110,24 @@ static int stm32_fd0_usart_set_word_length(int id, uint8_t word_length)
 static int stm32_fd0_usart_set_baud_rate(int id, uint32_t baud_rate)
 {
 	struct usart *usart;
+	uint32_t brr_val;
+	struct clk *pclk;
+	uint32_t pclk_rate;
 
 	if (id < 0 || id > 1)
 		return -1;
 
 	usart = stm32_fd0_usart_array.usart + id;
 
-	switch (baud_rate) {
-	case 9600:
-		__raw_writel(usart->base_addr + USART_BRR, 0x341);
-		break;
-	default:
+	pclk = clk_get_parent(usart->clk);
+	if (!pclk)
 		return -1;
-	}
+
+	pclk_rate = clk_get_rate(pclk);
+	clk_put(pclk);
+
+	brr_val = pclk_rate / baud_rate + 1;
+	__raw_writel(usart->base_addr + USART_BRR, brr_val);
 
 	return 0;
 }
@@ -188,7 +195,7 @@ static int stm32_fd0_usart_disable(int id)
 static int stm32_fd0_usart_irq_handler(void *arg)
 {
 	uint32_t isr, cr1;
-	uint8_t val;
+	char val;
 	struct usart *usart = (struct usart *)arg;
 	struct usart_data *usart_data = usart->usart_data;
 
@@ -196,8 +203,8 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 
 	if (isr & BIT(TXE)) {
 		if (usart_data->cur_pos < usart_data->size) {
-			val = usart_data->data[usart_data->cur_pos];
-			__raw_writeb(usart->base_addr + USART_TDR, (val & 0x7F));
+			val = (char)usart_data->data[usart_data->cur_pos];
+			__raw_writeb(usart->base_addr + USART_TDR, val);
 			usart_data->cur_pos++;
 			return 0;
 		}
@@ -232,13 +239,13 @@ int stm32_fd0_usart_start_tx(int id, struct usart_data *usart_data)
 	irq_enable(usart->irq);
 
 	/* enable USART2 transmitter */
-	__tx_enable(usart->base_addr);
+	__enable_tx(usart->base_addr);
 
 	/* wait for completion */
 	for(;usart_data->complete != 1;);
 
 	/* disable transmitter and USART2 */
-	__tx_disable(usart->base_addr);
+	__disable_tx(usart->base_addr);
 
 	irq_disable(usart->irq);
 
@@ -267,7 +274,7 @@ struct usart_ops stm32_fd0_usart_ops = {
 int stm32_fd0_usart_init(int id)
 {
 	int i;
-	struct clk *gpio_a;
+	struct clk *gpio_clk;
 	struct usart *usart = stm32_fd0_usart + id;
 	struct usart_gpio *usart_gpio;
 
@@ -276,14 +283,14 @@ int stm32_fd0_usart_init(int id)
 	if (!usart->clk)
 		return -1;
 
-	gpio_a = clk_get("gpio_a");
-	if (!gpio_a) {
-		clk_put(usart->clk);
-		return -1;
-	}
+	for (i = 0; i < usart->usart_resources.nr_gpio; i++) {
+		usart_gpio = usart->usart_resources.gpio + i;
 
-	for (i = 0; i < usart->resources.nr_resources; i++) {
-		usart_gpio = usart->resources.usart_gpio + i;
+		gpio_clk = clk_get(usart_gpio->clk_name);
+		if (!gpio_clk) {
+			clk_put(usart->clk);
+			return -1;
+		}
 
 		/* Set mode (USART2 TX) */
 		gpio_mux(usart_gpio->id,
@@ -294,6 +301,8 @@ int stm32_fd0_usart_init(int id)
 		gpio_set_type(usart_gpio->id, usart_gpio->pin_num, GPIO_OTYPE_PP);
 		gpio_set_speed(usart_gpio->id, usart_gpio->pin_num, GPIO_OSPEED_HIGH);
 		gpio_set_pupd(usart_gpio->id, usart_gpio->pin_num, GPIO_PUPD_UP);
+
+		clk_put(gpio_clk);
 	}
 
 	atomic_init(&usart->ref_count);
@@ -304,4 +313,3 @@ int stm32_fd0_usart_init(int id)
 
 	return 0;
 }
-

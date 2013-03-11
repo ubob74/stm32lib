@@ -1,42 +1,62 @@
 #include <_stdlib.h>
+
+#include <stm32_fd0_rcc.h>
 #include <stm32_fd0_clk.h>
 #include <clk.h>
 #include <io.h>
 
 static struct clk stm32_fd0_clk[] = {
 	[0] = {
+		.name = "sysclk",
+		.flags = ALWAYS_ON,
+		.set_rate = stm32_fd0_rcc_sys_clk_set_freq,
+		.get_rate = stm32_fd0_rcc_get_freq,
+	},
+	[1] = {
+		.name = "hclk",
+		.parent = "sysclk",
+		.flags = ALWAYS_ON,
+		.get_rate = stm32_fd0_rcc_get_freq,
+	},
+	[2] = {
+		.name = "pclk",
+		.parent = "hclk",
+		.flags = ALWAYS_ON,
+		.get_rate = stm32_fd0_rcc_get_freq,
+	},
+	[3] = {
 		.name = "gpio_a",
-		.ref_count = 0,
+		.parent = "pclk",
 		.enable_reg = RCC_AHBENR,
 		.enable_bit = 17,
 	},
-	[1] = {
+	[4] = {
 		.name = "gpio_b",
-		.ref_count = 0,
+		.parent = "pclk",
 		.enable_reg = RCC_AHBENR,
 		.enable_bit = 18,
 	},
-	[2] = {
+	[5] = {
 		.name = "gpio_c",
-		.ref_count = 0,
+		.parent = "pclk",
 		.enable_reg = RCC_AHBENR,
 		.enable_bit = 19,
 	},
-	[3] = {
+	[6] = {
 		.name = "syscfg",
-		.ref_count = 0,
+		.parent = "pclk",
 		.enable_reg = RCC_APB2ENR,
 		.enable_bit = 0,
 	},
-	[4] = {
+	[7] = {
 		.name = "usart1",
-		.ref_count = 0,
+		.parent = "pclk",
 		.enable_reg = RCC_APB2ENR,
 		.enable_bit = 14,
 	},
-	[5] = {
+	[8] = {
 		.name = "usart2",
-		.ref_count = 0,
+		.parent = "pclk",
 		.enable_reg = RCC_APB1ENR,
 		.enable_bit = 17,
 	},
@@ -57,16 +77,22 @@ static struct clk * stm32_fd0_clk_get(const char *name)
 	int id;
 	struct clk *clk = stm32_fd0_clk_array.clk;
 
+	if (!name)
+		return NULL;
+
 	for (id = 0; id < stm32_fd0_clk_array.nr_clk; clk++, id++) {
 		if (!strcmp(clk->name, name)) {
+			if (clk->flags & ALWAYS_ON)
+				return clk;
+
 			if (stm32_fd0_clk_enable(clk) < 0)
 				return NULL;
-
-			/* TODO: it should be atomic operation */
-			clk->ref_count++;
+	
+			atomic_inc(&clk->ref_count);
 			return clk;
 		}
 	}
+
 	return NULL;
 }
 
@@ -75,11 +101,23 @@ int stm32_fd0_clk_put(struct clk *clk)
 	if (!clk)
 		return -1;
 
-	if (!clk->ref_count)
+	if (clk->flags & ALWAYS_ON)
 		return 0;
 
-	clk->ref_count--;
-	return stm32_fd0_clk_disable(clk);
+	atomic_dec(&clk->ref_count);
+
+	if (!atomic_read(&clk->ref_count))
+		stm32_fd0_clk_disable(clk);
+
+	return 0;
+}
+
+static struct clk * stm32_fd0_clk_get_parent(struct clk *clk)
+{
+	if (!clk)
+		return NULL;
+		
+	return stm32_fd0_clk_get(clk->parent);
 }
 
 static int stm32_fd0_clk_enable(struct clk *clk)
@@ -87,7 +125,10 @@ static int stm32_fd0_clk_enable(struct clk *clk)
 	if (!clk)
 		return -1;
 
-	return set_bit(clk->enable_reg + RCC_BASE_ADDR,
+	if (clk->flags & ALWAYS_ON)
+		return 0;
+
+	return set_bit(clk->enable_reg,
 		clk->enable_bit);
 }
 
@@ -96,21 +137,49 @@ static int stm32_fd0_clk_disable(struct clk *clk)
 	if (!clk)
 		return -1;
 
-	return reset_bit(clk->enable_reg + RCC_BASE_ADDR,
+	if (clk->flags & ALWAYS_ON)
+		return 0;
+
+	return reset_bit(clk->enable_reg,
 		clk->enable_bit);
+}
+
+static int stm32_fd0_clk_set_rate(struct clk *clk, uint32_t rate)
+{
+	if (!clk)
+		return -1;
+
+	return (clk->set_rate) ? clk->set_rate(rate) : 0;
+}
+
+static uint32_t stm32_fd0_clk_get_rate(struct clk *clk)
+{
+	if (!clk)
+		return 0;
+
+	return (clk->get_rate) ? clk->get_rate(clk->name) : 0;
 }
 
 struct clk_ops stm32_fd0_clk_ops = {
 	.get = stm32_fd0_clk_get,
 	.put = stm32_fd0_clk_put,
+	.get_parent = stm32_fd0_clk_get_parent,
 	.enable = stm32_fd0_clk_enable,
 	.disable = stm32_fd0_clk_disable,
+	.set_rate = stm32_fd0_clk_set_rate,
+	.get_rate = stm32_fd0_clk_get_rate,
 };
 
 /**
- * STM32 FD0 RCC init
+ * STM32 F0 RCC init
  */
 int stm32_fd0_clk_init()
 {
+	int id;
+	struct clk *clk = stm32_fd0_clk_array.clk;
+
+	for (id = 0; id < stm32_fd0_clk_array.nr_clk; clk++, id++)
+		atomic_init(&clk->ref_count);
+
 	return clk_init(&stm32_fd0_clk_ops);
 }

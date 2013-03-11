@@ -62,4 +62,3 @@ void irq_generic_handler(int nr)
 	if (irq && irq->handler)
 		irq->handler(irq->arg);
 }
-

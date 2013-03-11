@@ -61,4 +61,3 @@ err:
 	clk_put(clk);
 	return ret;
 }
-

@@ -12,9 +12,9 @@ int stm32_test_stdlib(void)
 	struct data *tmp;
 
 	struct data data_array[] = {
-		{ "abcd\0", "abcd\0", 0 },
-		{ "abcd\0", "abcde\0", -1 },
-		{ "abcd\0", "efgh\0", -1 },
+		{ "abcd", "abcd", 0 },
+		{ "abcd", "abcde", -1 },
+		{ "abcd", "efgh", -1 },
 	};
 
 	data_array_size = sizeof(data_array)/sizeof(data_array[0]);
@@ -31,4 +31,3 @@ int stm32_test_stdlib(void)
 
 	return 0;
 }
-
