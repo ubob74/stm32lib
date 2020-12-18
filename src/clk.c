@@ -1,10 +1,9 @@
 #include <clk.h>
-#include <io.h>
+//#include <io.h>
 
 static struct clk_ops *clk_ops = NULL;
 
-int clk_init(struct clk_ops *arch_clk_ops)
-{
+int clk_init(struct clk_ops *arch_clk_ops) {
 	if (!arch_clk_ops)
 		return -1;
 

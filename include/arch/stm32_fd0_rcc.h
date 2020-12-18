@@ -1,7 +1,7 @@
 #ifndef _STM32_FD0_RCC_H_
 #define _STM32_FD0_RCC_H_
 
-#include <_stdint.h>
+#include <stdint.h>
 
 #define HSI_FREQ 8000000UL
 #define HSI_8_MHZ_FREQ HSI_FREQ

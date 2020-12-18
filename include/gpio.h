@@ -1,7 +1,8 @@
 #ifndef _GPIO_H_
 #define _GPIO_H_
 
-#include <_stdint.h>
+#include <stddef.h>
+#include <stdint.h>
 
 /*
  * GPIO data:

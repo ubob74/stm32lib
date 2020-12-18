@@ -80,7 +80,6 @@ static int __get_gpio_value(uint32_t id, uint8_t pin_num, uint32_t offset)
 	case GPIO_PUPDR_OFFSET:
 		width = 2;
 		return get_value(addr, pin_num << 1, width);
-
 	default:
 		return test_bit(addr, pin_num);
 	}
@@ -220,7 +219,7 @@ static int stm32_fd0_gpio_to_irq(uint32_t id, uint8_t pin_num, int exti_num)
 		reg += SYSCFG_EXTICR2;
 	else if (pin_num < 12)
 		reg += SYSCFG_EXTICR3;
-	else if (pin_num >= 12)
+	else
 		reg += SYSCFG_EXTICR4;
 
 	offset = (pin_num % CFG_PER_REG) << 2;

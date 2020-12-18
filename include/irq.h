@@ -1,7 +1,8 @@
 #ifndef _IRQ_HANDLER_H_
 #define _IRQ_HANDLER_H_
 
-#include <_stdint.h>
+#include <stddef.h>
+#include <stdint.h>
 
 struct irq {
 	int (*handler)(void *);

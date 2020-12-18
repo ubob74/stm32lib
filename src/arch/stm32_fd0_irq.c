@@ -1,4 +1,3 @@
-#include <io.h>
 #include <irq.h>
 #include <nvic.h>
 #include <stm32_fd0_irq.h>

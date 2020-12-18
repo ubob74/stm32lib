@@ -1,10 +1,11 @@
 #ifndef _USART_H_
 #define _USART_H_
 
-#include <_stdint.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <atomic.h>
-#include <clk.h>
 
+struct clk;
 struct usart_ops;
 struct usart_data;
 

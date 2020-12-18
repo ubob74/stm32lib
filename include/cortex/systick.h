@@ -1,7 +1,7 @@
 #ifndef _SYSTICK_H_
 #define _SYSTICK_H_
 
-#include <_stdint.h>
+#include <stdint.h>
 
 #define SYSTICK_BASE_ADDR 0xE000E010
 

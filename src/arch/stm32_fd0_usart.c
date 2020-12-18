@@ -1,6 +1,5 @@
 #include <stm32_fd0_usart.h>
 #include <stm32_fd0_gpio.h>
-#include <stm32_fd0_exti.h>
 #include <stm32_fd0_irq.h>
 #include <io.h>
 #include <clk.h>
@@ -60,9 +59,9 @@ static int __enable_tx(uint32_t base_addr)
 
 	set_bit(base_addr + USART_CR1, TE);
 
-	cr1_val = __raw_readl(base_addr + USART_CR1);
+	cr1_val = readl(base_addr + USART_CR1);
 	cr1_val |= BIT(TXEIE) | BIT(TCIE);
-	__raw_writel(base_addr + USART_CR1, cr1_val);
+	writel(base_addr + USART_CR1, cr1_val);
 
 	return 0;
 }
@@ -72,13 +71,13 @@ static int __disable_tx(uint32_t base_addr)
 	return reset_bit(base_addr + USART_CR1, TE);
 }
 
-static int __enable_rx(uint32_t base_addr)
+static __attribute__((unused)) int __enable_rx(uint32_t base_addr)
 {
 	/* TODO */
 	return 0;
 }
 
-static int __disable_rx(uint32_t base_addr)
+static __attribute__((unused)) int __disable_rx(uint32_t base_addr)
 {
 	/* TODO */
 	return 0;
@@ -126,8 +125,9 @@ static int stm32_fd0_usart_set_baud_rate(int id, uint32_t baud_rate)
 	pclk_rate = clk_get_rate(pclk);
 	clk_put(pclk);
 
-	brr_val = pclk_rate / baud_rate + 1;
-	__raw_writel(usart->base_addr + USART_BRR, brr_val);
+	//brr_val = (pclk_rate/baud_rate) + 1;
+	brr_val = (pclk_rate + baud_rate) + 1;
+	writel(usart->base_addr + USART_BRR, brr_val);
 
 	return 0;
 }
@@ -199,12 +199,12 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 	struct usart *usart = (struct usart *)arg;
 	struct usart_data *usart_data = usart->usart_data;
 
-	isr = __raw_readl(usart->base_addr + USART_ISR);
+	isr = readl(usart->base_addr + USART_ISR);
 
 	if (isr & BIT(TXE)) {
 		if (usart_data->cur_pos < usart_data->size) {
 			val = (char)usart_data->data[usart_data->cur_pos];
-			__raw_writeb(usart->base_addr + USART_TDR, val);
+			writel(usart->base_addr + USART_TDR, val);
 			usart_data->cur_pos++;
 			return 0;
 		}
@@ -212,9 +212,9 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 
 	if (isr & BIT(TC)) {
 		/* clear TXEIE and TCIE flags */
-		cr1 = __raw_readl(usart->base_addr + USART_CR1);
+		cr1 = readl(usart->base_addr + USART_CR1);
 		cr1 &= ~(BIT(TXEIE) | BIT(TCIE));
-		__raw_writel(usart->base_addr + USART_CR1, cr1);
+		writel(usart->base_addr + USART_CR1, cr1);
 
 		/* complete transmission */
 		usart_data->complete = 1;
@@ -227,8 +227,7 @@ int stm32_fd0_usart_start_tx(int id, struct usart_data *usart_data)
 {
 	struct usart *usart = stm32_fd0_usart + id;
 
-	if (!usart_data->data ||
-		!usart_data->size)
+	if (!usart_data->data || !usart_data->size)
 		return -1;
 
 	usart_data->complete = 0;

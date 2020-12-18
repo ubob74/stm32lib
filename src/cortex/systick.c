@@ -6,19 +6,19 @@
 /* Set Control and Status Register */
 void systick_set_csr(uint32_t val)
 {
-	__raw_writel(SYSTICK_BASE_ADDR + CSR, val);
+	writel(SYSTICK_BASE_ADDR + CSR, val);
 }
 
 /* Set Reload Value Register */
 void systick_set_rvr(uint32_t val)
 {
-	__raw_writel(SYSTICK_BASE_ADDR + RVR, val);
+	writel(SYSTICK_BASE_ADDR + RVR, val);
 }
 
 /* Set Current Value Register */
 void systick_set_cvr(uint32_t val)
 {
-	__raw_writel(SYSTICK_BASE_ADDR + CVR, val);
+	writel(SYSTICK_BASE_ADDR + CVR, val);
 }
 
 int systick_set_exception_handler(int (*handler)(void *), void *arg, int flags)

@@ -1,4 +1,4 @@
-#include <_stdlib.h>
+#include <stdlib.h>
 #include <io.h>
 #include <irq.h>
 #include <gpio.h>
@@ -9,11 +9,13 @@
 #include <stm32_fd0_exti.h>
 #include <stm32_fd0_usart.h>
 #include <stm32_fd0_irq.h>
+#include <stm32_fd0_rcc.h>
 #include <stm32_test.h>
 
 #define LED_GREEN	9
 #define LED_BLUE	8
 
+#if 1
 static int stm32_test_rcc(void)
 {
 	struct clk *sysclk;
@@ -42,6 +44,7 @@ static int stm32_test_rcc(void)
 
 	return 0;
 }
+#endif
 
 int main(void)
 {
@@ -59,16 +62,17 @@ int main(void)
 	if (stm32_test_exti() < 0)
 		goto out;
 
+#if 0
     /* (!) Connect pin to the terminal to prevent dead loop */
-	if (stm32_test_usart(USART_2) < 0)
-		goto out;
+	/*if (stm32_test_usart(USART_2) < 0)
+		goto out;*/
 
 	if (stm32_test_stdlib() < 0)
 		goto out;
+#endif
 
 	if (stm32_test_systick() < 0)
 		goto out;
-
 out:
 	while (1);
 }

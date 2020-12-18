@@ -1,12 +1,9 @@
 #ifndef _CLK_H_
 #define _CLK_H_
 
-#include <io.h>
-#include <_stdint.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <atomic.h>
-
-struct stm32_clk;
-struct stm32_clk_ops;
 
 /* Clock flags */
 #define ALWAYS_ON BIT(0)

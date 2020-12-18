@@ -7,6 +7,15 @@
 
 static int __set_mask(uint32_t reg, uint32_t bit_mask, unsigned flag)
 {
+#if 1
+    uint32_t val;
+
+    val = readl(EXTI_BASE_ADDR + reg);
+    (flag) ? (val |= bit_mask) : (val &= ~bit_mask);
+    writel(EXTI_BASE_ADDR + reg, val);
+#endif
+
+#if 0
 	uint8_t bit_num;
 
 	for (bit_num = 0; bit_num < MAX_MASK_BIT_NUM; bit_num++) {
@@ -16,7 +25,9 @@ static int __set_mask(uint32_t reg, uint32_t bit_mask, unsigned flag)
 				: reset_bit(reg + EXTI_BASE_ADDR, bit_num);
 		}
 	}
-	return 0;
+#endif
+
+    return 0;
 }
 
 /**

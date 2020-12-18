@@ -1,8 +1,7 @@
 #ifndef _STM32_FD0_EXTI_H_
 #define _STM32_FD0_EXTI_H_
 
-#include <_stdint.h>
-#include <io.h>
+#include <stdint.h>
 
 #define EXTI_BASE_ADDR		0x40010400
 #define SYSCFG_BASE_ADDR	0x40010000

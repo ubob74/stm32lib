@@ -1,7 +1,7 @@
 #ifndef _STM32_FD0_GPIO_H_
 #define _STM32_FD0_GPIO_H_
 
-#include <_stdint.h>
+#include <stdint.h>
 
 #define GPIO_BASE				0x48000000
 

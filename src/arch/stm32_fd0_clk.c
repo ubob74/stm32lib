@@ -1,5 +1,4 @@
-#include <_stdlib.h>
-
+#include <stdlib.h>
 #include <stm32_fd0_rcc.h>
 #include <stm32_fd0_clk.h>
 #include <clk.h>
@@ -128,8 +127,7 @@ static int stm32_fd0_clk_enable(struct clk *clk)
 	if (clk->flags & ALWAYS_ON)
 		return 0;
 
-	return set_bit(clk->enable_reg,
-		clk->enable_bit);
+	return set_bit(clk->enable_reg, clk->enable_bit);
 }
 
 static int stm32_fd0_clk_disable(struct clk *clk)
@@ -140,8 +138,7 @@ static int stm32_fd0_clk_disable(struct clk *clk)
 	if (clk->flags & ALWAYS_ON)
 		return 0;
 
-	return reset_bit(clk->enable_reg,
-		clk->enable_bit);
+	return reset_bit(clk->enable_reg, clk->enable_bit);
 }
 
 static int stm32_fd0_clk_set_rate(struct clk *clk, uint32_t rate)

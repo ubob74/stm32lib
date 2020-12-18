@@ -1,18 +1,19 @@
 #ifndef _IO_H_
 #define _IO_H_
 
-#include <_stdint.h>
-
-#ifndef NULL
-#define NULL ((void *)0)
-#endif
+#include <stdint.h>
 
 #define BIT(x) (1UL << x)
 
-uint32_t __raw_readl(uint32_t addr);
-uint8_t __raw_readb(uint32_t addr);
-void __raw_writel(uint32_t addr, uint32_t val);
-void __raw_writeb(uint32_t addr, uint8_t val);
+static inline uint32_t readl(uint32_t addr)
+{
+	return (uint32_t)(*(volatile uint32_t *)addr);
+}
+
+static inline void writel(uint32_t addr, uint32_t val)
+{
+	*(uint32_t *)addr = val;
+}
 
 int set_bit(uint32_t addr, uint8_t pos);
 int reset_bit(uint32_t addr, uint8_t pos);

@@ -1,4 +1,4 @@
-#include <_stdlib.h>
+#include <stdlib.h>
 #include <stm32_fd0_rcc.h>
 #include <io.h>
 
@@ -88,9 +88,9 @@ static int __rcc_pll_enable(void)
 		goto exit;
 
 	/* Set up PLLON bit */
-	val = __raw_readl(RCC_CR);
+	val = readl(RCC_CR);
 	val |= BIT(PLLON);
-	__raw_writel(RCC_CR, val);
+	writel(RCC_CR, val);
 
 	/* Wait until PLLRDY is set */
 	while (!test_bit(RCC_CR, PLLRDY));
@@ -107,9 +107,9 @@ static int __rcc_pll_disable(void)
 		goto exit;
 
 	/* Drop PLLON bit */
-	val = __raw_readl(RCC_CR);
+	val = readl(RCC_CR);
 	val &= ~(BIT(PLLON));
-	__raw_writel(RCC_CR, val);
+	writel(RCC_CR, val);
 
 	/* Wait until PLLRDY is cleared */
 	while (test_bit(RCC_CR, PLLRDY));

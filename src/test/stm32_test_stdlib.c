@@ -1,4 +1,4 @@
-#include <_stdlib.h>
+#include <stdlib.h>
 
 int stm32_test_stdlib(void)
 {

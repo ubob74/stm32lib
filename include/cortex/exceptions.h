@@ -1,7 +1,8 @@
 #ifndef _EXCEPTIONS_H_
 #define _EXCEPTIONS_H_
 
-#include <_stdint.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #define EXCEPTIONS_NUM 15
 

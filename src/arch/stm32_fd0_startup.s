@@ -1,9 +1,8 @@
 .syntax unified
 .cpu cortex-m0
-.fpu softvfp
 .thumb
 
-.global g_pfnVectors
+.global irq_vectors
 .global reset_handler
 
 /* start address for the initialization values of the .data section. 
@@ -28,54 +27,59 @@ defined in linker script */
  * @retval : None
 */
 
-    .section .text.reset_handler
-    .global reset_handler
-    .type reset_handler, %function
+.pushsection .text.reset_handler
+.global reset_handler
+.type reset_handler, %function
+
 reset_handler:
 
 /* Copy the data segment initializers from flash to SRAM */  
     movs r1, #0
-    b LoopCopyDataInit
+    b loop_copy_data_init
 
-CopyDataInit:
+copy_data_init:
     ldr r3, =_sidata
     ldr r3, [r3, r1]
     str r3, [r0, r1]
     adds r1, r1, #4
     
-LoopCopyDataInit:
+loop_copy_data_init:
     ldr r0, =_sdata
     ldr r3, =_edata
     adds r2, r0, r1
     cmp r2, r3
-    bcc CopyDataInit
+    bcc copy_data_init
     ldr r2, =_sbss
-    b LoopFillZerobss
-/* Zero fill the bss segment. */  
-FillZerobss:
+    b zero_bss
+
+/* zero fill the bss segment. */  
+fill_zero_bss:
     movs r3, #0
     str r3, [r2]
     adds r2, r2, #4
     
-LoopFillZerobss:
+zero_bss:
     ldr r3, = _ebss
     cmp r2, r3
-    bcc FillZerobss
+    bcc fill_zero_bss
+
 /* Call the application's entry point.*/
     bl main
     bx lr
 .size reset_handler, .-reset_handler
+.popsection
 
 /*******************************************************************************
 * The minimal vector table for a Cortex M0. Note that the proper constructs
 * must be placed on this to ensure that it ends up at physical address
 * 0x0000.0000.
 *******************************************************************************/
-    .section .isr_vector,"a",%progbits
-    .type g_pfnVectors, %object
-    .size g_pfnVectors, .-g_pfnVectors
 
-g_pfnVectors:
+.pushsection .isr_vector,"a",%progbits
+.type irq_vectors, %object
+.size irq_vectors, .-irq_vectors
+
+irq_vectors:
     .word _estack
     .word reset_handler
     .word nmi_handler
@@ -125,3 +129,4 @@ g_pfnVectors:
     .word cec_irq_handler
     .word 0
 
+.popsection

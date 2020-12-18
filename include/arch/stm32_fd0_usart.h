@@ -1,9 +1,7 @@
 #ifndef _STM32_FD0_USART_H_
 #define _STM32_FD0_USART_H_
 
-#include <_stdint.h>
-#include <usart.h>
-#include <stm32_fd0_gpio.h>
+#include <stdint.h>
 
 #define USART_1		0
 #define USART_2		1

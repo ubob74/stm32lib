@@ -1,7 +1,7 @@
 #ifndef _NVIC_H_
 #define _NVIC_H_
 
-#include <_stdint.h>
+#include <stdint.h>
 
 /**
  * System Control Space base address
