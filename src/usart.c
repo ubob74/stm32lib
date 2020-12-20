@@ -1,8 +1,4 @@
-//#include <stm32_fd0_usart.h>
-//#include <stm32_fd0_irq.h>
 #include <usart.h>
-//#include <io.h>
-//#include <irq.h>
 
 static struct usart_ops *usart_ops = NULL;
 

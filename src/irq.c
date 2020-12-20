@@ -1,5 +1,4 @@
 #include <irq.h>
-//#include <io.h>
 
 static struct irq_table *irq_table = NULL;
 

@@ -23,8 +23,7 @@ static struct rcc_clk_config stm32_fd0_rcc_clk_config[] = {
 
 static struct rcc_clk_data stm32_fd0_rcc_clk_data = {
 	.rcc_clk_config = stm32_fd0_rcc_clk_config,
-	.nr_rcc_clk_config =
-		sizeof(stm32_fd0_rcc_clk_config)/sizeof(stm32_fd0_rcc_clk_config[0]),
+	.nr_rcc_clk_config = ARRAY_SIZE(stm32_fd0_rcc_clk_config),
 };
 
 static int __rcc_sysclk_set_src(uint8_t sysclk_src)

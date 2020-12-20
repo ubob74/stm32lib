@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #define BIT(x) (1UL << x)
 
 static inline uint32_t readl(uint32_t addr)
@@ -12,7 +13,7 @@ static inline uint32_t readl(uint32_t addr)
 
 static inline void writel(uint32_t addr, uint32_t val)
 {
-	*(uint32_t *)addr = val;
+	*(volatile uint32_t *)addr = val;
 }
 
 int set_bit(uint32_t addr, uint8_t pos);

@@ -33,7 +33,7 @@ static struct usart stm32_fd0_usart[] = {
 		.clk_name = "usart1",
 		.usart_resources = {
 			.gpio = usart1_gpio,
-			.nr_gpio = sizeof(usart1_gpio)/sizeof(usart1_gpio[0]),
+			.nr_gpio = ARRAY_SIZE(usart1_gpio),
 		},
 	},
 	[1] = {
@@ -43,14 +43,14 @@ static struct usart stm32_fd0_usart[] = {
 		.clk_name = "usart2",
 		.usart_resources = {
 			.gpio = usart2_gpio,
-			.nr_gpio = sizeof(usart2_gpio)/sizeof(usart2_gpio[0]),
+			.nr_gpio = ARRAY_SIZE(usart2_gpio),
 		},
 	},
 };
 
 struct usart_array stm32_fd0_usart_array = {
 	.usart = stm32_fd0_usart,
-	.nr_usart = sizeof(stm32_fd0_usart)/sizeof(stm32_fd0_usart[0]),
+	.nr_usart = ARRAY_SIZE(stm32_fd0_usart),
 };
 
 static int __enable_tx(uint32_t base_addr)

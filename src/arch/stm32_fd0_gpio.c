@@ -23,7 +23,7 @@ static uint32_t stm32_fd0_gpio_bitmap[5];
 
 static struct gpio_data_array stm32_fd0_gpio_data_array = {
 	.gpio_data = stm32_fd0_gpio_data,
-	.nr_gpio_data = sizeof(stm32_fd0_gpio_data)/sizeof(stm32_fd0_gpio_data[0]),
+	.nr_gpio_data = ARRAY_SIZE(stm32_fd0_gpio_data),
 };
 
 static struct gpio_data * __get_gpio_data_by_id(uint32_t id)
@@ -155,7 +155,7 @@ static int stm32_fd0_gpio_get_pupd(uint32_t id, uint8_t pin_num)
 /*
  * GPIO muxing (alternate functions)
  */
-int stm32_fd0_gpio_mux(uint32_t id, uint8_t pin_num, int val)
+int stm32_fd0_gpio_mux(uint32_t id, uint8_t pin_num, int mode)
 {
 	uint32_t offset;
 
@@ -163,7 +163,7 @@ int stm32_fd0_gpio_mux(uint32_t id, uint8_t pin_num, int val)
 		return -1;
 
 	offset = (pin_num > 7) ? GPIO_AFRH_OFFSET : GPIO_AFRL_OFFSET;
-	return __set_gpio_value(id, pin_num, val, offset);
+	return __set_gpio_value(id, pin_num, mode, offset);
 }
 
 /*
