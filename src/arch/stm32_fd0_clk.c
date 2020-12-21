@@ -66,8 +66,8 @@ static struct clk_array stm32_fd0_clk_array = {
 	.nr_clk = ARRAY_SIZE(stm32_fd0_clk),
 };
 
-static struct clk * stm32_fd0_clk_get(const char *name);
-int stm32_fd0_clk_put(struct clk *clk);
+static struct clk *stm32_fd0_clk_get(const char *name);
+static int stm32_fd0_clk_put(struct clk *clk);
 static int stm32_fd0_clk_enable(struct clk *clk);
 static int stm32_fd0_clk_disable(struct clk *clk);
 

@@ -50,9 +50,6 @@ static int __rcc_set_freq(const char *clk_name, uint32_t freq)
 	int i;
 	struct rcc_clk_config *rcc_clk_config = stm32_fd0_rcc_clk_data.rcc_clk_config;
 
-	if (!clk_name || !freq)
-		return 0;
-
 	for (i = 0; i < stm32_fd0_rcc_clk_data.nr_rcc_clk_config; rcc_clk_config++, i++) {
 		if (!strcmp(clk_name, rcc_clk_config->name)) {
 			rcc_clk_config->freq = freq;
@@ -79,42 +76,28 @@ static uint32_t __rcc_get_freq(const char *clk_name)
 	return 0;
 }
 
-static int __rcc_pll_enable(void)
+static void __rcc_pll_enable(void)
 {
-	uint32_t val;
-
 	if (test_bit(RCC_CR, PLLRDY))
-		goto exit;
+		return;
 
 	/* Set up PLLON bit */
-	val = readl(RCC_CR);
-	val |= BIT(PLLON);
-	writel(RCC_CR, val);
+	set_bit(RCC_CR, PLLON);
 
 	/* Wait until PLLRDY is set */
 	while (!test_bit(RCC_CR, PLLRDY));
-
-exit:
-	return 0;
 }
 
-static int __rcc_pll_disable(void)
+static void __rcc_pll_disable(void)
 {
-	uint32_t val;
-
 	if (!test_bit(RCC_CR, PLLRDY))
-		goto exit;
+		return;
 
 	/* Drop PLLON bit */
-	val = readl(RCC_CR);
-	val &= ~(BIT(PLLON));
-	writel(RCC_CR, val);
+	reset_bit(RCC_CR, PLLON);
 
 	/* Wait until PLLRDY is cleared */
 	while (test_bit(RCC_CR, PLLRDY));
-
-exit:
-	return 0;
 }
 
 static void __rcc_set_pll_mul(uint8_t pllmul)

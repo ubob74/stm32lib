@@ -62,14 +62,14 @@ int main(void)
 	if (stm32_test_exti() < 0)
 		goto out;
 
-#if 0
+#if 1
     /* (!) Connect pin to the terminal to prevent dead loop */
-	/*if (stm32_test_usart(USART_2) < 0)
-		goto out;*/
+	if (stm32_test_usart(USART_2) < 0)
+		goto out;
+#endif
 
 	if (stm32_test_stdlib() < 0)
 		goto out;
-#endif
 
 	if (stm32_test_systick() < 0)
 		goto out;

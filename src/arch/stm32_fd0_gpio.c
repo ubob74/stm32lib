@@ -26,12 +26,12 @@ static struct gpio_data_array stm32_fd0_gpio_data_array = {
 	.nr_gpio_data = ARRAY_SIZE(stm32_fd0_gpio_data),
 };
 
-static struct gpio_data * __get_gpio_data_by_id(uint32_t id)
+static struct gpio_data * __get_gpio_data_by_id(uint8_t id)
 {
 	return (id > GPIO_F) ? NULL : (stm32_fd0_gpio_data_array.gpio_data + id);
 }
 
-static int __set_gpio_value(uint32_t id, uint8_t pin_num, int value, uint32_t offset)
+static int __set_gpio_value(uint8_t id, uint8_t pin_num, int value, uint32_t offset)
 {
 	struct gpio_data *gpio_data = NULL;
 	uint32_t addr;
@@ -62,7 +62,7 @@ static int __set_gpio_value(uint32_t id, uint8_t pin_num, int value, uint32_t of
 	}
 }
 
-static int __get_gpio_value(uint32_t id, uint8_t pin_num, uint32_t offset)
+static int __get_gpio_value(uint8_t id, uint8_t pin_num, uint32_t offset)
 {
 	int width;
 	struct gpio_data *gpio_data = NULL;
@@ -88,13 +88,13 @@ static int __get_gpio_value(uint32_t id, uint8_t pin_num, uint32_t offset)
 /*
  * GPIO access control
  */
-static int stm32_fd0_gpio_request(uint32_t id, uint8_t pin_num)
+static int stm32_fd0_gpio_request(uint8_t id, uint8_t pin_num)
 {
 	/* TODO */
 	return 0;
 }
 
-static int stm32_fd0_gpio_free(uint32_t id, uint8_t pin_num)
+static int stm32_fd0_gpio_free(uint8_t id, uint8_t pin_num)
 {
 	/* TODO */
 	return 0;
@@ -103,12 +103,12 @@ static int stm32_fd0_gpio_free(uint32_t id, uint8_t pin_num)
 /*
  * GPIO mode control
  */
-static int stm32_fd0_gpio_set_mode(uint32_t id, uint8_t pin_num, int mode)
+static int stm32_fd0_gpio_set_mode(uint8_t id, uint8_t pin_num, int mode)
 {
 	return __set_gpio_value(id, pin_num, mode, GPIO_MODER_OFFSET);
 }
 
-static int stm32_fd0_gpio_get_mode(uint32_t id, uint8_t pin_num)
+static int stm32_fd0_gpio_get_mode(uint8_t id, uint8_t pin_num)
 {
 	return __get_gpio_value(id, pin_num, GPIO_MODER_OFFSET);
 }
@@ -116,12 +116,12 @@ static int stm32_fd0_gpio_get_mode(uint32_t id, uint8_t pin_num)
 /*
  * GPIO output type control
  */
-static int stm32_fd0_gpio_set_type(uint32_t id, uint8_t pin_num, int type)
+static int stm32_fd0_gpio_set_type(uint8_t id, uint8_t pin_num, int type)
 {
 	return __set_gpio_value(id, pin_num, type, GPIO_OTYPER_OFFSET);
 }
 
-static int stm32_fd0_gpio_get_type(uint32_t id, uint8_t pin_num)
+static int stm32_fd0_gpio_get_type(uint8_t id, uint8_t pin_num)
 {
 	return __get_gpio_value(id, pin_num, GPIO_OTYPER_OFFSET);
 }
@@ -129,12 +129,12 @@ static int stm32_fd0_gpio_get_type(uint32_t id, uint8_t pin_num)
 /*
  * GPIO output speed control
  */
-static int stm32_fd0_gpio_set_speed(uint32_t id, uint8_t pin_num, int speed)
+static int stm32_fd0_gpio_set_speed(uint8_t id, uint8_t pin_num, int speed)
 {
 	return __set_gpio_value(id, pin_num, speed, GPIO_OSPEEDR_OFFSET);
 }
 
-static int stm32_fd0_gpio_get_speed(uint32_t id, uint8_t pin_num)
+static int stm32_fd0_gpio_get_speed(uint8_t id, uint8_t pin_num)
 {
 	return __get_gpio_value(id, pin_num, GPIO_OSPEEDR_OFFSET);
 }
@@ -142,12 +142,12 @@ static int stm32_fd0_gpio_get_speed(uint32_t id, uint8_t pin_num)
 /*
  * GPIO pull-up/down control
  */
-static int stm32_fd0_gpio_set_pupd(uint32_t id, uint8_t pin_num, int pupd)
+static int stm32_fd0_gpio_set_pupd(uint8_t id, uint8_t pin_num, int pupd)
 {
 	return __set_gpio_value(id, pin_num, pupd, GPIO_PUPDR_OFFSET);
 }
 
-static int stm32_fd0_gpio_get_pupd(uint32_t id, uint8_t pin_num)
+static int stm32_fd0_gpio_get_pupd(uint8_t id, uint8_t pin_num)
 {
 	return __get_gpio_value(id, pin_num, GPIO_PUPDR_OFFSET);
 }
@@ -155,7 +155,7 @@ static int stm32_fd0_gpio_get_pupd(uint32_t id, uint8_t pin_num)
 /*
  * GPIO muxing (alternate functions)
  */
-int stm32_fd0_gpio_mux(uint32_t id, uint8_t pin_num, int mode)
+int stm32_fd0_gpio_mux(uint8_t id, uint8_t pin_num, int mode)
 {
 	uint32_t offset;
 
@@ -169,14 +169,14 @@ int stm32_fd0_gpio_mux(uint32_t id, uint8_t pin_num, int mode)
 /*
  * GPIO bit input/output control
  */
-static int stm32_fd0_gpio_set_pin_value(uint32_t id, uint8_t pin_num, uint8_t value)
+static int stm32_fd0_gpio_set_pin_value(uint8_t id, uint8_t pin_num, uint8_t value)
 {
 	return (value)
 		? __set_gpio_value(id, pin_num, 1, GPIO_BSRR_OFFSET)
 		: __set_gpio_value(id, pin_num + PIN_NUM_MAX, 1, GPIO_BSRR_OFFSET);
 }
 
-static int stm32_fd0_gpio_get_pin_value(uint32_t id, uint8_t pin_num)
+static int stm32_fd0_gpio_get_pin_value(uint8_t id, uint8_t pin_num)
 {
 	return __get_gpio_value(id, pin_num, GPIO_IDR_OFFSET);
 }
@@ -184,7 +184,7 @@ static int stm32_fd0_gpio_get_pin_value(uint32_t id, uint8_t pin_num)
 /*
  * GPIO to IRQ
  */
-static int stm32_fd0_gpio_to_irq(uint32_t id, uint8_t pin_num, int exti_num)
+static int stm32_fd0_gpio_to_irq(uint8_t id, uint8_t pin_num, int exti_num)
 {
 	uint8_t offset, mode;
 	uint32_t reg = SYSCFG_BASE_ADDR;
@@ -193,25 +193,10 @@ static int stm32_fd0_gpio_to_irq(uint32_t id, uint8_t pin_num, int exti_num)
 	if ((pin_num > 15) || (exti_num > 15))
 		return -1;
 
-	switch (id) {
-	case GPIO_A:
-		mode = EXTI_PA_MODE;
-		break;
-	case GPIO_B:
-		mode = EXTI_PB_MODE;
-		break;
-	case GPIO_C:
-		mode = EXTI_PC_MODE;
-		break;
-	case GPIO_D:
-		mode = EXTI_PD_MODE;
-		break;
-	case GPIO_F:
-		mode = EXTI_PF_MODE;
-		break;
-	default:
+	if (id > GPIO_F)
 		return -1;
-	}
+
+	mode = EXTI_PA_MODE + id;
 
 	if (pin_num < 4)
 		reg += SYSCFG_EXTICR1;

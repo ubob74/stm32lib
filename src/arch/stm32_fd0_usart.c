@@ -123,7 +123,7 @@ static int stm32_fd0_usart_set_baud_rate(int id, uint32_t baud_rate)
 		return -1;
 
 	pclk_rate = clk_get_rate(pclk);
-	clk_put(pclk);
+	//clk_put(pclk);
 
 	//brr_val = (pclk_rate/baud_rate) + 1;
 	brr_val = (pclk_rate + baud_rate) + 1;

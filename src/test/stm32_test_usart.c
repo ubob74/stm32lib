@@ -21,7 +21,7 @@ int stm32_test_usart(int id)
 
 	/* set USART parameters */
 	usart_set_word_length(id, 8);
-	usart_set_baud_rate(id, 57600);
+	usart_set_baud_rate(id, 115200);
 	usart_set_stop_bit(id, 1);
 
 	/* enable USART2 */

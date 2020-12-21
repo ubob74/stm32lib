@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <io.h>
 
 int stm32_test_stdlib(void)
 {
@@ -17,7 +18,7 @@ int stm32_test_stdlib(void)
 		{ "abcd", "efgh", -1 },
 	};
 
-	data_array_size = sizeof(data_array)/sizeof(data_array[0]);
+	data_array_size = ARRAY_SIZE(data_array);
 
 	len = strlen(data_array[0].src);
 	if (len != 4)

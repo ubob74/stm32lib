@@ -5,7 +5,7 @@
 int set_bit(uint32_t addr, uint8_t pos)
 {
 	uint32_t val = readl(addr);
-	val |= (1UL << pos);
+	val |= BIT(pos);
 	writel(addr, val);
 	return 0;
 }
@@ -13,7 +13,7 @@ int set_bit(uint32_t addr, uint8_t pos)
 int reset_bit(uint32_t addr, uint8_t pos)
 {
 	uint32_t val = readl(addr);
-	val &= ~(1UL << pos);
+	val &= ~(BIT(pos));
 	writel(addr, val);
 	return 0;
 }
@@ -21,7 +21,7 @@ int reset_bit(uint32_t addr, uint8_t pos)
 int test_bit(uint32_t addr, uint8_t pos)
 {
 	uint32_t val = readl(addr);
-	return !!(val & (1UL << pos));
+	return !!(val & BIT(pos));
 }
 
 int set_value(uint32_t addr, int value, uint8_t pos, int width)

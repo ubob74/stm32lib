@@ -33,19 +33,7 @@ SECTIONS
         _etext = .;
         _sidata = _etext;
     } >FLASH
-/*
-	.rodata : AT ( _etext )
-	{
-		. = ALIGN(4);
 
-		*(.rodata)
-		*(.rodata*)
-
-		. = ALIGN(4);
-		_erodata = . ;
-        _sidata = _erodata;
-	} >RAM
-*/
     .data  : AT ( _sidata )
     {
         . = ALIGN(4);
