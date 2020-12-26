@@ -73,7 +73,7 @@ $(PROJ_NAME).elf: built-in.o
 
 clean:
 	find ./ -name '*~' | xargs rm -f	
-	rm -f *.o
+	find ./ -name '*.o' | xargs rm -f
 	rm -f $(PROJ_NAME).elf
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).bin
