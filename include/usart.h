@@ -7,7 +7,26 @@
 
 struct clk;
 struct usart_ops;
-struct usart_data;
+
+/*
+ * USART state
+ * - 0 - disable
+ * - 1 - enable
+ */
+enum usart_state {
+	USART_DISABLE,
+	USART_ENABLE,
+};
+
+/*
+ * The USART data
+ */
+struct usart_data {
+	uint8_t *data;
+	int size;
+	int cur_pos;
+	volatile int complete;
+};
 
 struct usart_gpio {
 	int id;
@@ -25,6 +44,7 @@ struct usart {
 	int id;
 	uint32_t base_addr;
 	int irq;
+	enum usart_state state;
 	int (*irq_handler)(void *);
 	const char *clk_name;
 	struct clk *clk;
@@ -38,15 +58,6 @@ struct usart_array {
 	int nr_usart;
 };
 
-/*
- * The USART data
- */
-struct usart_data {
-	uint8_t *data;
-	int size;
-	int cur_pos;
-	int complete;
-};
 
 /*
  * USART operations
