@@ -5,8 +5,7 @@
 .global irq_vectors
 .global reset_handler
 
-/* start address for the initialization values of the .data section. 
-defined in linker script */
+/* start address for the initialization values of the .data section */
 .word _sidata
 /* start address for the .data section. defined in linker script */  
 .word _sdata
@@ -63,7 +62,7 @@ zero_bss:
     cmp r2, r3
     bcc fill_zero_bss
 
-/* Call the application's entry point.*/
+/* Call the application's entry point */
     bl main
     bx lr
 .size reset_handler, .-reset_handler
@@ -77,7 +76,6 @@ zero_bss:
 
 .pushsection .isr_vector,"a",%progbits
 .type irq_vectors, %object
-.size irq_vectors, .-irq_vectors
 
 irq_vectors:
     .word _estack
@@ -129,4 +127,5 @@ irq_vectors:
     .word cec_irq_handler
     .word 0
 
+.size irq_vectors, .-irq_vectors
 .popsection

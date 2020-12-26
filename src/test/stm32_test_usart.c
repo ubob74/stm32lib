@@ -1,23 +1,15 @@
 #include <stdlib.h>
-#include <io.h>
-#include <nvic.h>
-#include <irq.h>
-#include <gpio.h>
 #include <usart.h>
-#include <clk.h>
-#include <stm32_fd0_gpio.h>
-#include <stm32_fd0_clk.h>
-#include <stm32_fd0_usart.h>
 #include <stm32_test.h>
 
 int stm32_test_usart(int id)
 {
-	int ret = -1;
 	struct usart_data usart_data;
-	uint8_t data[] = {'A', 'B', 'C', 'D', 'E', 'F' };
+	//uint8_t data[] = {'A', 'B', 'C', 'D', 'E', 'F', '\r', '\n', 'a', 'b', 'c', 'd', 'e', 'f', '\r', '\n' };
+	char *data = "ABCDEF\r\nabcdef\r\n\0";
 
-	usart_data.data = &data[0];
-	usart_data.size = sizeof(data);
+	usart_data.data = (uint8_t *)data;
+	usart_data.size = strlen(data);
 
 	/* set USART parameters */
 	usart_set_word_length(id, 8);
@@ -30,8 +22,7 @@ int stm32_test_usart(int id)
 	usart_start_tx(id, &usart_data);
 
 	/* Disable USART2 */
-	usart_disable(id);
+	//usart_disable(id);
 
-	ret = 0;
-	return ret;
+	return 0;
 }

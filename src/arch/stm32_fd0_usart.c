@@ -31,6 +31,7 @@ static struct usart stm32_fd0_usart[] = {
 		.base_addr = USART1_BASE_ADDR,
 		.irq = USART1,
 		.clk_name = "usart1",
+		.state = USART_DISABLE,
 		.usart_resources = {
 			.gpio = usart1_gpio,
 			.nr_gpio = ARRAY_SIZE(usart1_gpio),
@@ -41,6 +42,7 @@ static struct usart stm32_fd0_usart[] = {
 		.base_addr = USART2_BASE_ADDR,
 		.irq = USART2,
 		.clk_name = "usart2",
+		.state = USART_ENABLE,
 		.usart_resources = {
 			.gpio = usart2_gpio,
 			.nr_gpio = ARRAY_SIZE(usart2_gpio),
@@ -53,22 +55,16 @@ struct usart_array stm32_fd0_usart_array = {
 	.nr_usart = ARRAY_SIZE(stm32_fd0_usart),
 };
 
-static int __enable_tx(uint32_t base_addr)
+static inline void __enable_tx(uint32_t base_addr)
 {
-	uint32_t cr1_val;
-
-	set_bit(base_addr + USART_CR1, TE);
-
-	cr1_val = readl(base_addr + USART_CR1);
-	cr1_val |= BIT(TXEIE) | BIT(TCIE);
-	writel(base_addr + USART_CR1, cr1_val);
-
-	return 0;
+	uint32_t cr1 = readl(base_addr + USART_CR1);
+	cr1 |= BIT(TXEIE) | BIT(TCIE) | BIT(TE);
+	writel(base_addr + USART_CR1, cr1);
 }
 
-static int __disable_tx(uint32_t base_addr)
+static inline void __disable_tx(uint32_t base_addr)
 {
-	return reset_bit(base_addr + USART_CR1, TE);
+	reset_bit(base_addr + USART_CR1, TE);
 }
 
 static __attribute__((unused)) int __enable_rx(uint32_t base_addr)
@@ -83,6 +79,11 @@ static __attribute__((unused)) int __disable_rx(uint32_t base_addr)
 	return 0;
 }
 
+static inline struct usart *get_usart(int id)
+{
+	return stm32_fd0_usart_array.usart + id;
+}
+
 static int stm32_fd0_usart_set_word_length(int id, uint8_t word_length)
 {
 	struct usart *usart;
@@ -90,7 +91,7 @@ static int stm32_fd0_usart_set_word_length(int id, uint8_t word_length)
 	if (id < 0 || id > 1)
 		return -1;
 
-	usart = stm32_fd0_usart_array.usart + id;
+	usart = get_usart(id);
 
 	switch (word_length) {
 	case 8:
@@ -116,17 +117,17 @@ static int stm32_fd0_usart_set_baud_rate(int id, uint32_t baud_rate)
 	if (id < 0 || id > 1)
 		return -1;
 
-	usart = stm32_fd0_usart_array.usart + id;
+	usart = get_usart(id);
 
 	pclk = clk_get_parent(usart->clk);
 	if (!pclk)
 		return -1;
 
 	pclk_rate = clk_get_rate(pclk);
-	//clk_put(pclk);
+	clk_put(pclk);
 
-	//brr_val = (pclk_rate/baud_rate) + 1;
-	brr_val = (pclk_rate + baud_rate) + 1;
+	/* 48 MHz / 115200 = 416 */
+	brr_val = 416;
 	writel(usart->base_addr + USART_BRR, brr_val);
 
 	return 0;
@@ -135,6 +136,7 @@ static int stm32_fd0_usart_set_baud_rate(int id, uint32_t baud_rate)
 static int stm32_fd0_usart_set_stop_bit(int id, uint8_t stop_bit)
 {
 	struct usart *usart;
+	uint8_t val;
 
 	if (id < 0 || id > 1)
 		return -1;
@@ -144,16 +146,16 @@ static int stm32_fd0_usart_set_stop_bit(int id, uint8_t stop_bit)
 	/* set stop bit */
 	switch (stop_bit) {
 	case 1:
-		set_value(usart->base_addr + USART_CR2, 0, STOP, 2);
+		val = 0;
 		break;
 	case 2:
-		set_value(usart->base_addr + USART_CR2, 2, STOP, 2);
+		val = 2;
 		break;
 	default:
 		return -1;
 	}
 
-	return 0;
+	return set_value(usart->base_addr + USART_CR2, val, STOP, 2);
 }
 
 static int stm32_fd0_usart_set_parity(int id)
@@ -163,7 +165,7 @@ static int stm32_fd0_usart_set_parity(int id)
 	if (id < 0 || id > 1)
 		return -1;
 
-	usart = stm32_fd0_usart_array.usart + id;
+	usart = get_usart(id);
 
 	return set_bit(usart->base_addr + USART_CR1, PCE);
 }
@@ -175,7 +177,7 @@ static int stm32_fd0_usart_enable(int id)
 	if (id < 0 || id > 1)
 		return -1;
 
-	usart = stm32_fd0_usart_array.usart + id;
+	usart = get_usart(id);
 
 	return set_bit(usart->base_addr + USART_CR1, UE);
 }
@@ -187,15 +189,14 @@ static int stm32_fd0_usart_disable(int id)
 	if (id < 0 || id > 1)
 		return -1;
 
-	usart = stm32_fd0_usart_array.usart + id;
+	usart = get_usart(id);
 
 	return reset_bit(usart->base_addr + USART_CR1, UE);
 }
 
 static int stm32_fd0_usart_irq_handler(void *arg)
 {
-	uint32_t isr, cr1;
-	char val;
+	uint32_t isr;
 	struct usart *usart = (struct usart *)arg;
 	struct usart_data *usart_data = usart->usart_data;
 
@@ -203,16 +204,14 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 
 	if (isr & BIT(TXE)) {
 		if (usart_data->cur_pos < usart_data->size) {
-			val = (char)usart_data->data[usart_data->cur_pos];
+			uint8_t val = usart_data->data[usart_data->cur_pos++];
 			writel(usart->base_addr + USART_TDR, val);
-			usart_data->cur_pos++;
-			return 0;
 		}
 	}
 
-	if (isr & BIT(TC)) {
+	if (isr & BIT(TC) && (usart_data->cur_pos == usart_data->size)) {
 		/* clear TXEIE and TCIE flags */
-		cr1 = readl(usart->base_addr + USART_CR1);
+		uint32_t cr1 = readl(usart->base_addr + USART_CR1);
 		cr1 &= ~(BIT(TXEIE) | BIT(TCIE));
 		writel(usart->base_addr + USART_CR1, cr1);
 
@@ -225,7 +224,7 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 
 int stm32_fd0_usart_start_tx(int id, struct usart_data *usart_data)
 {
-	struct usart *usart = stm32_fd0_usart + id;
+	struct usart *usart = get_usart(id);
 
 	if (!usart_data->data || !usart_data->size)
 		return -1;
@@ -235,18 +234,14 @@ int stm32_fd0_usart_start_tx(int id, struct usart_data *usart_data)
 
 	usart->usart_data = usart_data;
 
-	irq_enable(usart->irq);
-
 	/* enable USART2 transmitter */
 	__enable_tx(usart->base_addr);
 
 	/* wait for completion */
-	for(;usart_data->complete != 1;);
-
+	while(usart_data->complete != 1);
+	
 	/* disable transmitter and USART2 */
 	__disable_tx(usart->base_addr);
-
-	irq_disable(usart->irq);
 
 	usart_data->complete = 0;
 	usart_data->cur_pos = 0;
@@ -274,7 +269,7 @@ int stm32_fd0_usart_init(int id)
 {
 	int i;
 	struct clk *gpio_clk;
-	struct usart *usart = stm32_fd0_usart + id;
+	struct usart *usart = get_usart(id);
 	struct usart_gpio *usart_gpio;
 
 	/* Enable clocks */
@@ -307,6 +302,8 @@ int stm32_fd0_usart_init(int id)
 	atomic_init(&usart->ref_count);
 	usart->irq_handler = stm32_fd0_usart_irq_handler;
 	irq_request(usart->irq, usart->irq_handler, (void *)usart, 0);
+
+	irq_enable(usart->irq);
 
 	usart_init(&stm32_fd0_usart_ops);
 
