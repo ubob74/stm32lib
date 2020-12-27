@@ -58,7 +58,7 @@ struct usart_array stm32_fd0_usart_array = {
 static inline void __enable_tx(uint32_t base_addr)
 {
 	uint32_t cr1 = readl(base_addr + USART_CR1);
-	cr1 |= BIT(TXEIE) | BIT(TCIE) | BIT(TE);
+	cr1 |= BIT(TXEIE) | BIT(TE);
 	writel(base_addr + USART_CR1, cr1);
 }
 
@@ -206,17 +206,12 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 		if (usart_data->cur_pos < usart_data->size) {
 			uint8_t val = usart_data->data[usart_data->cur_pos++];
 			writel(usart->base_addr + USART_TDR, val);
+		} else {
+			reset_bit(usart->base_addr + USART_CR1, TXEIE);
+
+			/* complete transmission */
+			usart_data->complete = 1;
 		}
-	}
-
-	if (isr & BIT(TC) && (usart_data->cur_pos == usart_data->size)) {
-		/* clear TXEIE and TCIE flags */
-		uint32_t cr1 = readl(usart->base_addr + USART_CR1);
-		cr1 &= ~(BIT(TXEIE) | BIT(TCIE));
-		writel(usart->base_addr + USART_CR1, cr1);
-
-		/* complete transmission */
-		usart_data->complete = 1;
 	}
 
 	return 0;
