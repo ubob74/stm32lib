@@ -4,29 +4,29 @@
 
 int stm32_test_usart(int id)
 {
-	struct usart_data usart_data;
-	//uint8_t data[] = {'A', 'B', 'C', 'D', 'E', 'F', '\r', '\n', 'a', 'b', 'c', 'd', 'e', 'f', '\r', '\n' };
-	char *data = "ABCDEF\r\nabcdef\r\n\0";
-	char *data1 = "fuck off\r\n";
+	const char *data = "ABCDEF\r\nabcdef\r\n\0";
+	const char *data1 = "fuck off\r\n";
+	const char *str = "test string\n";
+	const char *str2 = "test string2\n";
 
 	/* set USART parameters */
-	usart_set_word_length(id, 8);
-	usart_set_baud_rate(id, 115200);
-	usart_set_stop_bit(id, 1);
+	usart_set_word_length(8);
+	usart_set_baud_rate(115200);
+	usart_set_stop_bit(1);
 
 	/* enable USART2 */
-	usart_enable(id);
+	usart_enable();
 
-	usart_data.data = (uint8_t *)data;
-	usart_data.size = strlen(data);
-	usart_start_tx(id, &usart_data);
-
-	usart_data.data = (uint8_t *)data1;
-	usart_data.size = strlen(data1);
-	usart_start_tx(id, &usart_data);
+	usart_start_tx((const u8 *)data, strlen(data));
+	usart_start_tx((const u8 *)data1, strlen(data1));
 
 	/* Disable USART2 */
 	//usart_disable(id);
+
+	printf("Test printf: %d %x %X\r\n", 10, 30, 30);
+	printf("Test printf #2: %d %d\r\n", 123, 456845);
+	printf("%s\r\n", str);
+	printf("%s %X %X\r\n", str2, 1000, 0x1000FF);
 
 	return 0;
 }
