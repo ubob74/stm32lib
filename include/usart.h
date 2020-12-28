@@ -22,9 +22,9 @@ enum usart_state {
  * The USART data
  */
 struct usart_data {
-	uint8_t *data;
-	int size;
-	int cur_pos;
+	const u8 *data;
+	size_t size;
+	size_t cur_pos;
 	volatile int complete;
 };
 
@@ -64,24 +64,26 @@ struct usart_array {
  */
 struct usart_ops {
 	struct usart *usart; /* back reference */
-	int (*usart_enable)(int id);
-	int (*usart_disable)(int id);
-	int (*set_word_length)(int id, uint8_t word_length);
-	int (*set_baud_rate)(int id, uint32_t baud_rate);
-	int (*set_stop_bit)(int id, uint8_t stop_bit);
-	int (*set_parity)(int id);
-	int (*start_tx)(int id, struct usart_data *usart_data);
-	int (*start_rx)(int id, struct usart_data *usart_data);
+	int (*set_default)(uint8_t);
+	int (*usart_enable)(void);
+	int (*usart_disable)(void);
+	int (*set_word_length)(uint8_t word_length);
+	int (*set_baud_rate)(uint32_t baud_rate);
+	int (*set_stop_bit)(uint8_t stop_bit);
+	int (*set_parity)(void);
+	int (*start_tx)(struct usart_data *usart_data);
+	int (*start_rx)(struct usart_data *usart_data);
 };
 
 int usart_init(struct usart_ops *);
-int usart_enable(int id);
-int usart_disable(int id);
-int usart_set_word_length(int id, uint8_t word_length);
-int usart_set_baud_rate(int id, uint32_t baud_rate);
-int usart_set_stop_bit(int id, uint8_t stop_bit);
-int usart_set_parity(int id);
-int usart_start_tx(int id, struct usart_data *usart_data);
-int usart_start_rx(int id, struct usart_data *usart_data);
+int usart_enable(void);
+int usart_disable(void);
+int usart_set_default(uint8_t);
+int usart_set_word_length(uint8_t word_length);
+int usart_set_baud_rate(uint32_t baud_rate);
+int usart_set_stop_bit(uint8_t stop_bit);
+int usart_set_parity(void);
+int usart_start_tx(const u8 *data, size_t size);
+int usart_start_rx(struct usart_data *usart_data);
 
 #endif /* _USART_H_ */

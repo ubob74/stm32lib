@@ -129,6 +129,6 @@
 #define USART1_TX MODE1
 #define USART2_TX MODE1
 
-int stm32_fd0_usart_init(int);
+int stm32_fd0_usart_init(void);
 
 #endif /* _STM32_FD0_USART_H_ */

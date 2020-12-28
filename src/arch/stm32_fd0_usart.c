@@ -7,6 +7,8 @@
 #include <irq.h>
 #include <usart.h>
 
+static int usart_default = USART_2;
+
 static struct usart_gpio usart1_gpio[] = {
 	[0] = {
 		.id = GPIO_A,
@@ -79,19 +81,22 @@ static __attribute__((unused)) int __disable_rx(uint32_t base_addr)
 	return 0;
 }
 
-static inline struct usart *get_usart(int id)
+static inline struct usart *get_usart(void)
 {
-	return stm32_fd0_usart_array.usart + id;
+	return stm32_fd0_usart_array.usart + usart_default;
 }
 
-static int stm32_fd0_usart_set_word_length(int id, uint8_t word_length)
+static int stm32_fd0_usart_set_default(u8 id)
 {
-	struct usart *usart;
-
-	if (id < 0 || id > 1)
+	if (id > stm32_fd0_usart_array.nr_usart - 1)
 		return -1;
+	usart_default = id;
+	return 0;
+}
 
-	usart = get_usart(id);
+static int stm32_fd0_usart_set_word_length(uint8_t word_length)
+{
+	struct usart *usart = get_usart();
 
 	switch (word_length) {
 	case 8:
@@ -107,17 +112,12 @@ static int stm32_fd0_usart_set_word_length(int id, uint8_t word_length)
 	return 0;
 }
 
-static int stm32_fd0_usart_set_baud_rate(int id, uint32_t baud_rate)
+static int stm32_fd0_usart_set_baud_rate(uint32_t baud_rate)
 {
-	struct usart *usart;
+	struct usart *usart = get_usart();
 	uint32_t brr_val;
 	struct clk *pclk;
 	uint32_t pclk_rate;
-
-	if (id < 0 || id > 1)
-		return -1;
-
-	usart = get_usart(id);
 
 	pclk = clk_get_parent(usart->clk);
 	if (!pclk)
@@ -133,15 +133,10 @@ static int stm32_fd0_usart_set_baud_rate(int id, uint32_t baud_rate)
 	return 0;
 }
 
-static int stm32_fd0_usart_set_stop_bit(int id, uint8_t stop_bit)
+static int stm32_fd0_usart_set_stop_bit(uint8_t stop_bit)
 {
-	struct usart *usart;
+	struct usart *usart = get_usart();
 	uint8_t val;
-
-	if (id < 0 || id > 1)
-		return -1;
-
-	usart = stm32_fd0_usart_array.usart + id;
 
 	/* set stop bit */
 	switch (stop_bit) {
@@ -158,39 +153,21 @@ static int stm32_fd0_usart_set_stop_bit(int id, uint8_t stop_bit)
 	return set_value(usart->base_addr + USART_CR2, val, STOP, 2);
 }
 
-static int stm32_fd0_usart_set_parity(int id)
+static int stm32_fd0_usart_set_parity(void)
 {
-	struct usart *usart;
-
-	if (id < 0 || id > 1)
-		return -1;
-
-	usart = get_usart(id);
-
+	struct usart *usart = get_usart();
 	return set_bit(usart->base_addr + USART_CR1, PCE);
 }
 
-static int stm32_fd0_usart_enable(int id)
+static int stm32_fd0_usart_enable(void)
 {
-	struct usart *usart;
-
-	if (id < 0 || id > 1)
-		return -1;
-
-	usart = get_usart(id);
-
+	struct usart *usart = get_usart();
 	return set_bit(usart->base_addr + USART_CR1, UE);
 }
 
-static int stm32_fd0_usart_disable(int id)
+static int stm32_fd0_usart_disable(void)
 {
-	struct usart *usart;
-
-	if (id < 0 || id > 1)
-		return -1;
-
-	usart = get_usart(id);
-
+	struct usart *usart = get_usart();
 	return reset_bit(usart->base_addr + USART_CR1, UE);
 }
 
@@ -217,9 +194,9 @@ static int stm32_fd0_usart_irq_handler(void *arg)
 	return 0;
 }
 
-int stm32_fd0_usart_start_tx(int id, struct usart_data *usart_data)
+int stm32_fd0_usart_start_tx(struct usart_data *usart_data)
 {
-	struct usart *usart = get_usart(id);
+	struct usart *usart = get_usart();
 
 	if (!usart_data->data || !usart_data->size)
 		return -1;
@@ -244,7 +221,7 @@ int stm32_fd0_usart_start_tx(int id, struct usart_data *usart_data)
 	return 0;
 }
 
-int stm32_fd0_usart_start_rx(int id, struct usart_data *usart_data)
+int stm32_fd0_usart_start_rx(struct usart_data *usart_data)
 {
 	return 0;
 }
@@ -252,6 +229,7 @@ int stm32_fd0_usart_start_rx(int id, struct usart_data *usart_data)
 struct usart_ops stm32_fd0_usart_ops = {
 	.usart_enable = stm32_fd0_usart_enable,
 	.usart_disable = stm32_fd0_usart_disable,
+	.set_default = stm32_fd0_usart_set_default,
 	.set_word_length = stm32_fd0_usart_set_word_length,
 	.set_baud_rate = stm32_fd0_usart_set_baud_rate,
 	.set_stop_bit = stm32_fd0_usart_set_stop_bit,
@@ -260,11 +238,11 @@ struct usart_ops stm32_fd0_usart_ops = {
 	.start_rx = stm32_fd0_usart_start_rx,
 };
 
-int stm32_fd0_usart_init(int id)
+int stm32_fd0_usart_init(void)
 {
 	int i;
 	struct clk *gpio_clk;
-	struct usart *usart = get_usart(id);
+	struct usart *usart = get_usart();
 	struct usart_gpio *usart_gpio;
 
 	/* Enable clocks */

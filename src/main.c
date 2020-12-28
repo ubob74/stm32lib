@@ -51,7 +51,7 @@ int main(void)
 	stm32_fd0_irq_table_init();
 	stm32_fd0_clk_init();
 	stm32_fd0_gpio_init();
-	stm32_fd0_usart_init(USART_2);
+	stm32_fd0_usart_init();
 
 	if (stm32_test_gpio() < 0)
 		goto out;
