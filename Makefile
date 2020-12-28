@@ -1,4 +1,4 @@
-SRCS = main.c io.c atomic.c clk.c gpio.c irq.c main.c usart.c stdlib.c \
+SRCS = main.c io.c atomic.c clk.c gpio.c irq.c main.c usart.c stdlib.c math.c \
 	   stm32_fd0_clk.c stm32_fd0_exti.c stm32_fd0_gpio.c stm32_fd0_irq.c \
 	   stm32_fd0_usart.c stm32_fd0_rcc.c \
 	   exceptions.c nvic.c systick.c
@@ -20,7 +20,7 @@ OBJCOPY=$(ARM_PREFIX)objcopy
 OBJDUMP=$(ARM_PREFIX)objdump
 SIZE=$(ARM_PREFIX)size
 
-CFLAGS  = -Wall -g -std=c99 -Os 
+CFLAGS  = -Wall -g -std=gnu99 -Os 
 CFLAGS += -mlittle-endian
 CFLAGS += -mthumb
 CFLAGS += -mcpu=cortex-m0
